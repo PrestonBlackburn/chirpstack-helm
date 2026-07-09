@@ -1,0 +1,6 @@
+apiVersion: v2
+name: chirpstack
+description: Lightweight self-hosted ChirpStack LoRaWAN Network Server for homelab use (ChirpStack + PostgreSQL + Redis + Mosquitto)
+type: application
+version: 0.1.0
+appVersion: "4"

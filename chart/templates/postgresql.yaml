@@ -1,0 +1,94 @@
+{{- if .Values.postgresql.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pg-pvc
+  labels: 
+    app: chirp-database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+{{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    app: database
+    release: {{ .Release.Name }}
+    component: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: database
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: database
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: postgresql
+          image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+          envFrom:
+            - secretRef: 
+                name: {{ .Values.global.secret_name }}
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+          ports:
+            - containerPort: {{ .Values.postgresql.port }}
+
+          volumeMounts:
+            - name: {{ .Release.Name }}-pg-pv
+              mountPath: /var/lib/postgresql/data
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 2Gi
+
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+      volumes:
+        - name: initdb
+          configMap:
+            name: {{ .Release.Name }}-postgres-initdb
+        - name: {{ .Release.Name }}-pg-pv
+          {{- if .Values.postgresql.persistence.enabled }}
+          persistentVolumeClaim: 
+            claimName: {{ .Release.Name }}-pg-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-{{ .Values.postgresql.host }}
+spec:
+    type: ClusterIP
+    selector:
+        app: database
+    ports:
+      - protocol: TCP
+        port: {{ .Values.postgresql.port }}
+        targetPort: {{ .Values.postgresql.port }}

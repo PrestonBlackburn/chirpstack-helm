@@ -1,0 +1,18 @@
+ChirpStack has been deployed as "{{ .Release.Name }}".
+
+Region enabled: {{ .Values.chirpstack.region }}
+Make sure a files/region_{{ .Values.chirpstack.region }}.toml file was present in the
+chart before you ran `helm install`/`upgrade` — ChirpStack will fail to start
+without it.
+
+To reach the web UI (default login: admin / admin, change it immediately):
+
+
+kubectl -n {{ .Release.Namespace }} port-forward svc/{{ .Release.Name }}-{{ .Values.chirpstack.host }} 8080:{{ .Values.chirpstack.port }}
+then open http://localhost:8080
+
+
+Note: this chart deploys ChirpStack + PostgreSQL + Redis + Mosquitto +
+Gateway Bridge. Point your LR1302's packet_forwarder server_address at this
+Gateway Bridge (see README.md "Pointing your LR1302 gateway" section) to
+finish the migration off TTN.

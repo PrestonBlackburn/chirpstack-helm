@@ -1,0 +1,32 @@
+{{- if .Values.gatewayBridge.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chirpstack.fullname" . }}-gateway-bridge
+  labels:
+    app: gateway-bridge
+data:
+  chirpstack-gateway-bridge.toml: |
+    [general]
+    log_level=4
+
+    [backend]
+    type="semtech_udp"
+
+    [backend.semtech_udp]
+    udp_bind="0.0.0.0:{{ .Values.gatewayBridge.udpPort }}"
+
+    [integration]
+    marshaler="json"
+
+    [integration.mqtt]
+    event_topic_template="{{ .Values.chirpstack.region }}/gateway/{{ "{{ .GatewayID }}" }}/event/{{ "{{ .EventType }}" }}"
+    state_topic_template="{{ .Values.chirpstack.region }}/gateway/{{ "{{ .GatewayID }}" }}/state/{{ "{{ .StateType }}" }}"
+    command_topic_template="{{ .Values.chirpstack.region }}/gateway/{{ "{{ .GatewayID }}" }}/command/#"
+
+    [integration.mqtt.auth]
+    type="generic"
+
+    [integration.mqtt.auth.generic]
+    servers=["tcp://{{.Release.Name}}-{{ .Values.mosquitto.host }}:{{ .Values.mosquitto.port }}/"]
+{{- end }}

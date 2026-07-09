@@ -1,0 +1,63 @@
+# Default values for the chirpstack chart.
+# This is sized for a single-node homelab deployment: no HA, conservative
+# resource requests, single ReadWriteOnce PVCs for state.
+
+global:
+  secret_name: chirp-secrets
+  environment: prod
+
+chirpstack:
+  host: chirpstack-svc
+  image:
+    repository: chirpstack/chirpstack
+    tag: "4"
+    pullPolicy: IfNotPresent
+  # LoRaWAN region enabled by default. Must match one of the region_*.toml
+  # files ChirpStack ships with. For US915, this must also match the
+  # 8-channel sub-band (FSB) already programmed into your gateway's
+  # channel plan - us915_1 (FSB2) is TTN's default for the US, so that's
+  # what's set here. If your gateway was set up differently, check its
+  # global_conf.json / local_conf.json channel frequencies against
+  # https://github.com/chirpstack/chirpstack/tree/master/chirpstack/configuration
+  # to find the matching us915_N file, and swap files/region_us915_1.toml
+  # for the correct one.
+  region: us915_1
+  # ChirpStack Network ID (NetID), as a hex string. Fine to leave as the
+  # default "000000" for a private homelab network.
+  netID: "000000"
+  port: 8080
+
+postgresql:
+  host: postgres-svc
+  port: 5432
+  image:
+    repository: postgres
+    tag: "18-alpine"
+  persistence:
+    enabled: false
+
+redis:
+  host: redis-svc
+  image:
+    repository: redis
+    tag: "8-alpine"
+  port: 6379
+    
+mosquitto:
+  host: mosquitto-svc
+  image:
+    repository: eclipse-mosquitto
+    tag: "2"
+  port: 1883
+
+gatewayBridge:
+  enabled: false
+  image:
+    repository: chirpstack/chirpstack-gateway-bridge
+    tag: "4"
+    pullPolicy: IfNotPresent
+
+  # Your LR1302's packet_forwarder sends UDP to this port (serv_port_up /
+  # serv_port_down in its global_conf.json / local_conf.json).
+  udpPort: 1700
+

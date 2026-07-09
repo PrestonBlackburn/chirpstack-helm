@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-postgres-initdb
+  labels:
+    app: chirp-database
+data:
+  # This script just enables the extension ChirpStack requires, and runs
+  # against POSTGRES_DB automatically.
+  init.sql: |
+    create extension if not exists pg_trgm;

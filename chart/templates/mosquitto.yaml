@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chirpstack.fullname" . }}-mosquitto
+  labels:
+    app: chirp-mqtt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chirp-mqtt
+  template:
+    metadata:
+      labels:
+        app: chirp-mqtt
+    spec:
+      containers:
+        - name: mosquitto
+          image: "{{ .Values.mosquitto.image.repository }}:{{ .Values.mosquitto.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.mosquitto.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chirpstack.fullname" . }}-mosquitto
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-{{ .Values.mosquitto.host }}
+  labels:
+    app: chirp-mqtt
+spec:
+  selector:
+    app: chirp-mqtt
+  ports:
+    - port: {{ .Values.mosquitto.port }}
+      targetPort: {{ .Values.mosquitto.port }}

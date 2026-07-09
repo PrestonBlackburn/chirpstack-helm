@@ -1,0 +1,34 @@
+# assumes chirp namespace
+apiVersion: v1
+kind: Service
+metadata:
+  name: chirp-gateway-bridge-udp
+  namespace: chirp
+  labels:
+    app: gateway-bridge
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: gateway-bridge
+  ports:
+    - name: udp-fwd
+      port: 1700
+      targetPort: 1700
+      protocol: UDP
+
+---
+# I already have a gateway that I'll re-use
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: chirp-ui-route
+  namespace: chirp
+spec:
+  parentRefs:
+  - name: homelab-gateway
+  rules:
+  - backendRefs:
+    - name: chirpstack-svc
+      port: 8080
+

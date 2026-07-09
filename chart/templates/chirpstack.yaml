@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-chirpstack
+  labels:
+    app: chirpstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chirpstack
+  template:
+    metadata:
+      labels:
+        app: chirpstack
+    spec:
+      initContainers:
+        - name: wait-for-postgresql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z {{.Release.Name}}-{{ .Values.postgresql.host }} {{ .Values.postgresql.port }}; do
+                echo "waiting for postgres..."; sleep 2;
+              done
+              until nc -z {{.Release.Name}}-{{ .Values.redis.host }} {{ .Values.redis.port }}; do
+                echo "waiting for redis..."; sleep 2;
+              done
+      containers:
+        - name: chirpstack
+          image: "{{ .Values.chirpstack.image.repository }}:{{ .Values.chirpstack.image.tag }}"
+          imagePullPolicy: {{ .Values.chirpstack.image.pullPolicy }}
+          args: ["-c", "/etc/chirpstack"]
+          env:
+            - name: POSTGRES_HOST
+              value: "{{.Release.Name}}-{{ .Values.postgresql.host }}"
+            - name: REDIS_HOST
+              value: "{{.Release.Name}}-{{ .Values.redis.host }}"
+            - name: MQTT_BROKER_HOST
+              value: "{{.Release.Name}}-{{ .Values.mosquitto.host }}"
+          envFrom:
+            - secretRef:
+                name: {{ .Values.global.secret_name }}
+
+          ports:
+            - containerPort: {{ .Values.chirpstack.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/chirpstack
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.chirpstack.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.chirpstack.port }}
+            initialDelaySeconds: 20
+            periodSeconds: 20
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chirpstack.fullname" . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.chirpstack.host }}
+  labels:
+    app: chirpstack
+spec:
+  type: ClusterIP
+  selector:
+    app: chirpstack
+  ports:
+    - port: {{ .Values.chirpstack.port }}
+      targetPort: {{ .Values.chirpstack.port }}

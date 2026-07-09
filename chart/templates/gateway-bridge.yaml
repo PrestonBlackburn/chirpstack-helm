@@ -1,0 +1,45 @@
+{{- if .Values.gatewayBridge.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chirpstack.fullname" . }}-gateway-bridge
+  labels:
+    app: gateway-bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-bridge
+  template:
+    metadata:
+      labels:
+        app: gateway-bridge
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/gateway-bridge-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: gateway-bridge
+          image: "{{ .Values.gatewayBridge.image.repository }}:{{ .Values.gatewayBridge.image.tag }}"
+          imagePullPolicy: {{ .Values.gatewayBridge.image.pullPolicy }}
+          args: ["-c", "/etc/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml"]
+          ports:
+            - name: udp-fwd
+              containerPort: {{ .Values.gatewayBridge.udpPort }}
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/chirpstack-gateway-bridge
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chirpstack.fullname" . }}-gateway-bridge
+
+{{- end }}
