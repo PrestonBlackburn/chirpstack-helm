@@ -1,8 +1,22 @@
 
 # Helm for ChirpStack LoRaWAN Gateway
 
+[ChirpStack](https://www.chirpstack.io/docs/index.html) is an open-source LoRaWAN Network Server which can be used to setup private or public LoRaWAN networks.  
+This repo is meant to simplify the chirpstack setup on my homelab by providing a simple helm chart to be deployed on my kubernetes cluster.  
 
-## Pointing your LR1302 gateway at this instead of TTN
+## Architecture
+
+A generic Chirpstack architecture looks like this:   
+![Chirp Arch](./img/chirpstack_arch.svg)
+
+
+**Supported Architecture**  
+This helm chart does not support all possible configurations of chirpstack. The supported architecture of this helm chart is shown below. (*Note that the boxes don't necessarily represent k8s pods*)   
+![Helm Arch](./img/helm_arch.png)
+
+
+## Migrating from TTN
+Pointing your LR1302 gateway at this instead of TTN. This assumes you're using the UDP Packet Forwarder based on the instructions outlined in the [Electrow Docs](https://www.elecrow.com/wiki/lr1302-lorawan-gateway-module.html#step-4-configure-ttn-related-content)  
 
 On the gateway, find `global_conf.json` or `local_conf.json` for
 `packet_forwarder` and update the `gateway_conf` section:
@@ -17,11 +31,7 @@ On the gateway, find `global_conf.json` or `local_conf.json` for
 
 By default (`gatewayBridge.hostNetwork: true`), the Gateway Bridge binds
 directly to port 1700 on whichever node its pod lands on — so
-`server_address` just needs to be that node's IP, no other networking setup
-required. If you'd rather not rely on a specific node (e.g. multi-node
-cluster where the pod could move), set `gatewayBridge.hostNetwork: false`
-and use the NodePort service instead (default `31700` — you'd then set
-`serv_port_up`/`serv_port_down` to `31700` on the gateway).
+`server_address`
 
 ## Before you install
 
