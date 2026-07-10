@@ -39,25 +39,13 @@
       # MQTT configuration.
       [regions.gateway.backend.mqtt]
 
-        # Topic prefix.
-        #
-        # The topic prefix can be used to define the region of the gateway.
-        # Note, there is no need to add a trailing '/' to the prefix. The trailing
-        # '/' is automatically added to the prefix if it is configured.
         topic_prefix = "us915_1"
-
-        # Shared subscription name.
-        #
-        # In case there are multiple ChirpStack instances sharing the same
-        # subscription name, then the MQTT broker will deliver a gateway event
-        # only to one subscriber. In case you have a production and
-        # test-environment connected to the same MQTT broker, make sure that
-        # each environment has its own subscription name, for example:
-        # chirpstack_prod and chirpstack_tst.
         share_name = "chirpstack"
 
         # MQTT server (e.g. scheme://host:port where scheme is tcp, ssl or ws)
         # server = "tcp://localhost:1883"
+
+        server = "tcp://$MQTT_BROKER_HOST:1883"
 
         # Connect with the given username (optional)
         username = ""
