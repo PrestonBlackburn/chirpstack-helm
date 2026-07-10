@@ -29,3 +29,5 @@ data:
     [integration.mqtt]
     server="tcp://$MQTT_BROKER_HOST:1883/"
     json=true
+  region_us915_1.toml: |
+    {{- .Files.Get "files/region_us915_1.toml" | nindent 4 }}
