@@ -1,0 +1,35 @@
+# idk why I was having a bunch of issues with this....
+# just going to use a loadbalancer instead a gateway
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: Gateway
+# metadata:
+#   name: chirp-http-gateway
+#   namespace: chirp
+# spec:
+#   gatewayClassName: nginx
+#   infrastructure:
+#     annotations:
+#       metallb.universe.tf/address-pool: default-addresspool
+#   listeners:
+#   - name: http
+#     port: 80
+#     protocol: HTTP
+#     allowedRoutes:
+#       namespaces:
+#         from: Same
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: chirp-lb
+  namespace: chirp
+  annotations:
+    metallb.io/loadBalancerIPs: "192.168.1.56"
+spec:
+  type: LoadBalancer
+  selector:
+    app: chirpstack
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

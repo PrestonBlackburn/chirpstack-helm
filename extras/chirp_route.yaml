@@ -1,0 +1,15 @@
+# ended up not using this
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: chirp-ui-route
+  namespace: chirp
+spec:
+  parentRefs:
+  - name: chirp-http-gateway
+  hostnames:
+  - "chirp.lan"
+  rules:
+  - backendRefs:
+    - name: chirpstack-chirpstack-svc
+      port: 8080
