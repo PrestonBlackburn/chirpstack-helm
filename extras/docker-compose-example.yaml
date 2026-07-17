@@ -1,0 +1,23 @@
+# example docker compose to run basic station on:
+# Hardware: 
+#  - Raspberry PI 4B
+#  - Elecrow LR1302 Concentrator
+# OS:
+#  - raspberry pi os (debian based)
+# Source: https://github.com/xoseperez/basicstation-docker
+
+version: '2.0'
+
+services:
+  basicstation:
+    image: xoseperez/basicstation:latest
+    container_name: basicstation
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment: 
+      MODEL: "SX1302"
+      DEVICE: "/dev/spidev0.0"
+      TC_URI: "wss://chirp.prestonblackburn.com:443"
+      TC_KEY: "unused"
+
