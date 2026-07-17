@@ -18,9 +18,10 @@ data:
     # if TLS terminated at the pod itself
     # cloudflared will terminate TLS, so we don't need it
     # ca_cert=""
-    # tls_cert=""
-    # tls_key=""
-
+    {{- if .Values.basicStationGatewayBridge.internal_tls }}
+    tls_cert="/etc/chirpstack-basic-station-tls/tls.crt"
+    tls_key="/etc/chirpstack-basic-station-tls/tls.key"
+    {{- end }}
     [integration]
     marshaler="json"
 

@@ -29,6 +29,11 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/chirpstack-basic-station
+          {{- if .Values.basicStationGatewayBridge.internal_tls }}
+            - name: tls-config
+              mountPath: /etc/chirpstack-basic-station-tls
+              readOnly: true
+          {{- end }}
           resources:
             requests:
               cpu: 50m
@@ -41,6 +46,16 @@ spec:
         - name: config
           configMap:
             name: {{ include "chirpstack.fullname" . }}-basic-station
+      {{- if .Values.basicStationGatewayBridge.internal_tls }}
+        - name: tls-config
+          secret:
+            secretName: chirpstack-basic-station-tls
+            items:
+              - key: TLS_CRT
+                path: tls.crt
+              - key: TLS_KEY
+                path: tls.key
+      {{- end }}
 ---
 
 apiVersion: v1

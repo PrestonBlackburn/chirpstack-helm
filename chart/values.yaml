@@ -63,6 +63,7 @@ udpGatewayBridge:
 
 basicStationGatewayBridge:
   enabled: true
+  internal_tls: true
   image:
     repository: chirpstack/chirpstack-gateway-bridge
     tag: "4"

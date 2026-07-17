@@ -54,6 +54,7 @@ Test a secret
 ```bash
 # Seal the secret
 kubeseal --format yaml < extras/plain_secret.yaml > chart/templates/chirp-secrets.yaml --controller-name=sealed-secrets --controller-namespace=sealed-secrets
+kubeseal --format yaml < extras/basic_station_secrets.yaml > chart/templates/chirp-basic-station-secrets.yaml --controller-name=sealed-secrets --controller-namespace=sealed-secrets
 
 # Apply the sealed secret
 kubectl apply -f example-sealed-secret.yaml
