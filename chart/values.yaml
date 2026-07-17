@@ -34,7 +34,7 @@ postgresql:
     repository: postgres
     tag: "18-alpine"
   persistence:
-    enabled: false
+    enabled: true
 
 redis:
   host: redis-svc
