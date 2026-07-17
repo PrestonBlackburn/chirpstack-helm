@@ -1,2 +1,5 @@
 plain_secret.yaml
+basic_station_secrets.yaml
 *.env
+*.crt
+*.key
