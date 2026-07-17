@@ -1,20 +1,25 @@
-{{- if .Values.udpGatewayBridge.enabled }}
+{{- if .Values.basicStationGatewayBridge.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "chirpstack.fullname" . }}-gateway-bridge
+  name: {{ include "chirpstack.fullname" . }}-basic-station
   labels:
-    app: gateway-bridge
+    app: basic-station
 data:
-  chirpstack-gateway-bridge.toml: |
+  chirpstack-basic-station.toml: |
     [general]
     log_level=4
 
     [backend]
-    type="semtech_udp"
+    type="basic_station"
 
-    [backend.semtech_udp]
-    udp_bind="0.0.0.0:{{ .Values.udpGatewayBridge.udpPort }}"
+    [backend.basic_station]
+    bind="0.0.0.0:{{ .Values.basicStationGatewayBridge.port }}"
+    # if TLS terminated at the pod itself
+    # cloudflared will terminate TLS, so we don't need it
+    # ca_cert=""
+    # tls_cert=""
+    # tls_key=""
 
     [integration]
     marshaler="json"
@@ -26,7 +31,6 @@ data:
 
     [integration.mqtt.auth]
     type="generic"
-
     [integration.mqtt.auth.generic]
     servers=["tcp://{{.Release.Name}}-{{ .Values.mosquitto.host }}:{{ .Values.mosquitto.port }}/"]
 {{- end }}

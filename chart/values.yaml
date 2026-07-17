@@ -34,7 +34,7 @@ postgresql:
     repository: postgres
     tag: "18-alpine"
   persistence:
-    enabled: false
+    enabled: true
 
 redis:
   host: redis-svc
@@ -50,7 +50,7 @@ mosquitto:
     tag: "2"
   port: 1883
 
-gatewayBridge:
+udpGatewayBridge:
   enabled: true
   image:
     repository: chirpstack/chirpstack-gateway-bridge
@@ -61,3 +61,10 @@ gatewayBridge:
   # serv_port_down in its global_conf.json / local_conf.json).
   udpPort: 1700
 
+basicStationGatewayBridge:
+  enabled: true
+  image:
+    repository: chirpstack/chirpstack-gateway-bridge
+    tag: "4"
+    pullPolicy: IfNotPresent
+  port: 3001

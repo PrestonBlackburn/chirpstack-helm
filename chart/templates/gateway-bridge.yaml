@@ -1,4 +1,4 @@
-{{- if .Values.gatewayBridge.enabled }}
+{{- if .Values.udpGatewayBridge.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,12 +19,12 @@ spec:
     spec:
       containers:
         - name: gateway-bridge
-          image: "{{ .Values.gatewayBridge.image.repository }}:{{ .Values.gatewayBridge.image.tag }}"
-          imagePullPolicy: {{ .Values.gatewayBridge.image.pullPolicy }}
+          image: "{{ .Values.udpGatewayBridge.image.repository }}:{{ .Values.udpGatewayBridge.image.tag }}"
+          imagePullPolicy: {{ .Values.udpGatewayBridge.image.pullPolicy }}
           args: ["-c", "/etc/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml"]
           ports:
             - name: udp-fwd
-              containerPort: {{ .Values.gatewayBridge.udpPort }}
+              containerPort: {{ .Values.udpGatewayBridge.udpPort }}
               protocol: UDP
           volumeMounts:
             - name: config
