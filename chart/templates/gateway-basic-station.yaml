@@ -1,0 +1,58 @@
+{{- if .Values.basicStationGatewayBridge.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chirpstack.fullname" . }}-basic-station
+  labels:
+    app: basic-station
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basic-station
+  template:
+    metadata:
+      labels:
+        app: basic-station
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/gateway-basic-station-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: basic-station
+          image: "{{ .Values.basicStationGatewayBridge.image.repository }}:{{ .Values.basicStationGatewayBridge.image.tag }}"
+          imagePullPolicy: {{ .Values.basicStationGatewayBridge.image.pullPolicy }}
+          args: ["-c", "/etc/chirpstack-basic-station/chirpstack-basic-station.toml"]
+          ports:
+            - name: basic-station
+              containerPort: {{ .Values.basicStationGatewayBridge.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/chirpstack-basic-station
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chirpstack.fullname" . }}-basic-station
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chirpstack.fullname" . }}-basic-station
+spec:
+  type: ClusterIP
+  selector:
+    app: basic-station
+  ports:
+    - port: {{ .Values.basicStationGatewayBridge.port }}
+      targetPort: {{ .Values.basicStationGatewayBridge.port }}
+
+{{- end }}
