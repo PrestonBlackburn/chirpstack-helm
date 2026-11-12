@@ -1,6 +1,6 @@
 # example docker compose to run basic station on:
 # Hardware: 
-#  - Raspberry PI 4B
+#  - Raspberry PI 4B or Pi 5
 #  - Elecrow LR1302 Concentrator
 # OS:
 #  - raspberry pi os (debian based)
@@ -15,9 +15,19 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
+    devices:
+      - "/dev/ttyAMA0:/dev/ttyAMA0"   # GPS location
+      # for rpi 5s only
+      - "/dev/spidev0.0:/dev/spidev0.0"
+      - "/dev/gpiochip4:/dev/gpiochip4"
     environment: 
       MODEL: "SX1302"
       DEVICE: "/dev/spidev0.0"
       TC_URI: "wss://chirp.prestonblackburn.com:443"
       TC_KEY: "unused"
-
+      GATEWAY_EUI: "YOUR_GATEWAY_EUI"
+      HAS_GPS: 1
+      GPS_DEV: "/dev/ttyAMA0"         # Match the device path mapped above
+      SPI_SPEED: 2000000
+      # for rpi5 only
+      GPIO_CHIP: "gpiochip4"

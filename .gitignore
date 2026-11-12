@@ -3,3 +3,4 @@ basic_station_secrets.yaml
 *.env
 *.crt
 *.key
+gateway_info.md
